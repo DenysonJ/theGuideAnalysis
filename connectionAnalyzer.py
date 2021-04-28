@@ -1,7 +1,7 @@
 from common.connections import connectionsSentece, connectionsText
 from common.convert import txt2string
 from common.parse import textParsed
-from common.graph import connections2igraph, delete_separeted_vertices
+from common.graph import connections2igraph, delete_separeted_vertices, graph_properties
 from igraph import *
 import argparse
 
@@ -27,7 +27,7 @@ def generateConnections(listaNomes, arquivoTexto):
     text = txt2string(arquivoTexto)
     text = textParsed(text)
 
-    connections = connectionsText(text, listaNomes, sentenceNumbers)
+    connections = connectionsText(text, listaNomes)
 
     graph = connections2igraph(connections)
 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
                         default=None, metavar='number-of-sentences',
                         help='')
 
-    parser.add_argument('-n', '--no-text', action='store_false', default=None, 
+    parser.add_argument('-n', '--no-text', action='store_false',
                         help='')
 
     parser.add_argument('-a', '--attributes', type=str, 
@@ -57,8 +57,8 @@ if __name__ == '__main__':
                         help='Path to file with attributes for all words')
 
     parser.add_argument('-o', '--output-file', type=str, dest='output',
-                        default='results.txt', metavar='output-file',
-                        help='File to save analysis output, without extension')
+                        default='results', metavar='output-file',
+                        help='File to save analysis output')
 
     parser.add_argument('-g', '--graph-file', type=str, 
                         default='graph_file', metavar='graph-file',
@@ -75,9 +75,11 @@ if __name__ == '__main__':
 
     if args.sentences:
         graph = generateSentenceConnections(args.words, args.text, args.sentences)
-        plot(graph, target=args.graph_file+'.'+args.extension)
+        plot(graph, target=args.graph_file+'Sentence.'+args.extension)
+        graph_properties(graph, args.output+"Sentence.txt")
 
 
     if args.no_text:
         graph = generateConnections(args.words, args.text)
         plot(graph, target=args.graph_file+'.'+args.extension)
+        graph_properties(graph, args.output+".txt")
