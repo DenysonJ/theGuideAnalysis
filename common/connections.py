@@ -90,7 +90,7 @@ def connectionsText(text, names):
 	for name in names:
 		connections[name] = {}
 
-	connect = [name for name in names if reSearch(r'\b'+name.lower()+r'\b',sent.text.lower())]
+	connect = [name for name in names if reSearch(r'\b'+name.lower()+r'\b',text.lower())]
 
 	setConnections(connect, connections)
 
