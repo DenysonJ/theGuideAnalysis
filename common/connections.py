@@ -16,7 +16,7 @@ of connection of the nodes to keep track of how many times they are connected
         connections 	-> current connections
 
     It's expected that connections are already initialized with all names with
-    a dictionary as value, where will be set all connections 
+    a dictionary as value, where will be set all connections
 
     Return:
         None
