@@ -1,26 +1,34 @@
-from common.connections import connectionsSentece, connectionsText
-from common.convert import txt2string
+from common.connections import connectionsSentece, connectionsText, joinNodeConnections
+from common.convert import txt2string,pdf2string
 from common.parse import textParsed
-from common.graph import connections2igraph, delete_separeted_vertices, graph_properties
+from common.graph import *
 from igraph import *
 import argparse
 
-def generateSentenceConnections(listaNomes, arquivoTexto, sentenceNumbers=3):
+def generateSentenceConnections(listaNomes, arquivoTexto, args):
 
     listaNomes = txt2string(listaNomes).split('\n')
 
     text = txt2string(arquivoTexto)
     text = textParsed(text)
 
-    connections = connectionsSentece(text, listaNomes, sentenceNumbers)
+    connections = connectionsSentece(text, listaNomes, sentenceNumbers=args.sentences)
+
+    if args.join:
+        pairList = attributesFile(args.join)
+        joinNodeConnections(pairList, connections)
 
     graph = connections2igraph(connections)
 
     delete_separeted_vertices(graph)
 
+    if args.attributes:
+        attrList = attributesFile(args.attributes)
+        graph_attributes(graph, attrList)
+
     return graph
 
-def generateConnections(listaNomes, arquivoTexto):
+def generateConnections(listaNomes, arquivoTexto, args):
 
     listaNomes = txt2string(listaNomes).split('\n')
 
@@ -29,11 +37,69 @@ def generateConnections(listaNomes, arquivoTexto):
 
     connections = connectionsText(text, listaNomes)
 
+    if args.join:
+        pairList = attributesFile(args.join)
+        joinNodeConnections(pairList, connections)
+
     graph = connections2igraph(connections)
 
     delete_separeted_vertices(graph)
 
+    if args.attributes:
+        attrList = attributesFile(args.attributes)
+        graph_attributes(graph, attrList)
+
     return graph
+
+def connectionsPage(listaNomes, arquivoTexto, pages, args):
+
+    listaNomes = txt2string(listaNomes).split('\n')
+
+    connections = {}
+
+    for page in pages:
+        text = pdf2string(arquivoTexto, page)
+        text = textParsed(text)
+
+        connections = connectionsText(text, listaNomes, connections)
+
+    if args.join:
+        pairList = attributesFile(args.join)
+        joinNodeConnections(pairList, connections)
+
+    graph = connections2igraph(connections)
+
+    delete_separeted_vertices(graph)
+
+    if args.attributes:
+        attrList = attributesFile(args.attributes)
+        graph_attributes(graph, attrList)
+
+    return graph
+
+def attributesFile(file):
+
+    splited = txt2string(file).split('\n')
+
+    splitedList = txt2string(splited).split('\n')
+    pairList = []
+    for pair in splitedList:
+        pairList.append(pair.split(','))
+
+    return pairList
+
+def visualStyle(graph, color=None, vertex_size=15, window_size=(600, 600), margin=20):
+
+    visual_style = {}
+    visual_style["vertex_size"] = vertex_size
+    visual_style["edge_width"] = graph.es["weight"]
+    visual_style["bbox"] = window_size
+    visual_style["margin"] = margin
+
+    if color:
+        visual_style["vertex_color"] = color
+
+    return visual_style
 
 
 if __name__ == '__main__':
@@ -68,18 +134,21 @@ if __name__ == '__main__':
                         default='png', metavar='graph-file',
                         help='File to save the graph generated.')
 
+    parser.add_argument('-j', '--join', type=str, 
+                        default=None, metavar='join',
+                        help='File with words to join after connection analysis.')
 
 
     args = parser.parse_args()
 
-
     if args.sentences:
-        graph = generateSentenceConnections(args.words, args.text, args.sentences)
+        graph = generateSentenceConnections(args.words, args.text, args)
         plot(graph, target=args.graph_file+'Sentence.'+args.extension)
         graph_properties(graph, args.output+"Sentence.txt")
-
+        graph.save(args.graph_file+"Sentence.gml", format="gml")
 
     if args.no_text:
-        graph = generateConnections(args.words, args.text)
+        graph = generateConnections(args.words, args.text, args)
         plot(graph, target=args.graph_file+'.'+args.extension)
         graph_properties(graph, args.output+".txt")
+        graph.save(args.graph_file+".gml", format="gml")
