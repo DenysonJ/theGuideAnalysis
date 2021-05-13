@@ -88,3 +88,18 @@ def graph_properties(graph, output_filename="results.txt"):
 
     with open(output_filename, 'w') as f:
         f.write(string)
+
+"""
+Receive a graph and save the graph attributes
+
+    Args:
+        graph (igraph)    -> The graph to be analyzed
+        attributes (list) -> List of lists with name attributes on attributes[0]
+
+    Return:
+        None
+"""
+def graph_attributes(graph, attributes):
+
+    for i in range(len(attributes[0])):
+        graph[attributes[0][i]] = [j[i] for j in attributes[1:]]
