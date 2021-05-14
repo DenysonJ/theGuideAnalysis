@@ -107,6 +107,7 @@ by her first or last name. Put both in the name list to be searched,
 and then join the nodes later.
 
     Args:
+        listNames (list) -> list with all nodes to be joined
         connections (dictionary) -> current connections
 
     Return:
@@ -121,6 +122,19 @@ def joinNodes(listNames, connections):
     joinNodeConnections(listNames, connections)
 
 
+"""
+Join nodes in a dictionary with connections
+All connections in pair[1] will be setted in pair[0]
+Then pair[1] is deleted
+
+    Args:
+        listNames (list) -> list with all nodes to be joined
+        connections (dictionary) -> current connections
+
+    Return:
+        None
+
+"""
 def joinNodeConnections(listNames, connections):
     first = [i[0] for i in listNames]
     second = [i[1] for i in listNames]
@@ -142,7 +156,20 @@ def joinNodeConnections(listNames, connections):
 
         del connections[pair[1]]
 
+"""
+Change names in connections
+All nodes connected with name2 will be connected with name1 instead.
+Then the connection with name2 is deleted
 
+    Args:
+        connections (dictionary) -> current connections
+        name1 (key) -> key to be joined
+        name2 (key) -> key to be deleted
+
+    Return:
+        None
+
+"""
 def changeNodeNames(connections, name1, name2):
     names = list(connections.keys())
 
