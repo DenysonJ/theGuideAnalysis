@@ -1,9 +1,10 @@
-from common.connections import connectionsSentece, connectionsText, joinNodeConnections
+from common.connections import connectionsSentece, connectionsText, joinNodes
 from common.convert import txt2string,pdf2string
 from common.parse import textParsed
 from common.graph import *
 from igraph import *
 import argparse
+import sys
 
 def generateSentenceConnections(listaNomes, arquivoTexto, args):
 
@@ -16,7 +17,7 @@ def generateSentenceConnections(listaNomes, arquivoTexto, args):
 
     if args.join:
         pairList = attributesFile(args.join)
-        joinNodeConnections(pairList, connections)
+        joinNodes(pairList, connections)
 
     graph = connections2igraph(connections)
 
@@ -39,7 +40,7 @@ def generateConnections(listaNomes, arquivoTexto, args):
 
     if args.join:
         pairList = attributesFile(args.join)
-        joinNodeConnections(pairList, connections)
+        joinNodes(pairList, connections)
 
     graph = connections2igraph(connections)
 
@@ -58,14 +59,14 @@ def connectionsPage(listaNomes, arquivoTexto, pages, args):
     connections = {}
 
     for page in pages:
-        text = pdf2string(arquivoTexto, page)
+        text = pdf2string(arquivoTexto, [page])
         text = textParsed(text)
 
         connections = connectionsText(text, listaNomes, connections)
 
     if args.join:
         pairList = attributesFile(args.join)
-        joinNodeConnections(pairList, connections)
+        joinNodes(pairList, connections)
 
     graph = connections2igraph(connections)
 
@@ -81,9 +82,8 @@ def attributesFile(file):
 
     splited = txt2string(file).split('\n')
 
-    splitedList = txt2string(splited).split('\n')
     pairList = []
-    for pair in splitedList:
+    for pair in splited:
         pairList.append(pair.split(','))
 
     return pairList
@@ -111,12 +111,19 @@ if __name__ == '__main__':
     parser.add_argument('text', metavar='path-to-text', type=str,
                         help='Path to file with the text to be searched')
 
-    parser.add_argument('-s', '--sentences', type=int, 
-                        default=None, metavar='number-of-sentences',
-                        help='')
+    group = parser.add_mutually_exclusive_group(required=True)
 
-    parser.add_argument('-n', '--no-text', action='store_false',
-                        help='')
+    group.add_argument('-s', '--sentences', type=int,
+                        default=None, metavar='number-of-sentences',
+                        help='This option will enable connections per sentence, using spacy. Text file must be in txt format.')
+
+    group.add_argument('-t', '--mode-text', action='store_true',
+                        help='This option will enable connections in the entire text. Text file must be in txt format.')
+
+    group.add_argument('-p', '--pages', type=int, nargs=2,
+                        default=None, metavar='pages',
+                        help='This option will enable connections per page. Must be passed the initial and final \
+                        page. Text file must be in pdf format.')
 
     parser.add_argument('-a', '--attributes', type=str, 
                         default=None, metavar='path-to-attributes',
@@ -146,9 +153,19 @@ if __name__ == '__main__':
         plot(graph, target=args.graph_file+'Sentence.'+args.extension)
         graph_properties(graph, args.output+"Sentence.txt")
         graph.save(args.graph_file+"Sentence.gml", format="gml")
+        sys.exit()
 
-    if args.no_text:
+    if args.mode_text:
+        print(args.mode_text)
+        sys.exit()
         graph = generateConnections(args.words, args.text, args)
         plot(graph, target=args.graph_file+'.'+args.extension)
         graph_properties(graph, args.output+".txt")
         graph.save(args.graph_file+".gml", format="gml")
+        sys.exit()
+
+    Ipage, Fpage = args.pages
+    graph = connectionsPage(args.words, args.text, range(Ipage, Fpage),args)
+    plot(graph, target=args.graph_file+'.'+args.extension)
+    graph_properties(graph, args.output+".txt")
+    graph.save(args.graph_file+".gml", format="gml")
