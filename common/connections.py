@@ -113,6 +113,14 @@ and then join the nodes later.
         None
 
 """
+def joinNodes(listNames, connections):
+
+    for pair in listNames:
+        changeNodeNames(connections, pair[0], pair[1])
+
+    joinNodeConnections(listNames, connections)
+
+
 def joinNodeConnections(listNames, connections):
     first = [i[0] for i in listNames]
     second = [i[1] for i in listNames]
@@ -121,11 +129,9 @@ def joinNodeConnections(listNames, connections):
         for name in connections[pair[0]]:
             if name in second:
                 connections[pair[0]][first[second.index(name)]] = connections[pair[0]].get(name, 0) + connections[pair[1]].get(name, 0)
-                del connections[pair[1]][name]
                 continue
 
             connections[pair[0]][name] = connections[pair[0]].get(name, 0) + connections[pair[1]].get(name, 0)
-            del connections[pair[1]][name]
 
         for name in connections[pair[1]]:
             if name in second:
@@ -135,3 +141,24 @@ def joinNodeConnections(listNames, connections):
             connections[pair[0]][name] = connections[pair[0]].get(name, 0) + connections[pair[1]].get(name, 0)
 
         del connections[pair[1]]
+
+
+def changeNodeNames(connections, name1, name2):
+    names = list(connections.keys())
+
+    for name in names:
+        keys = list(connections[name].keys())
+        for key in keys:
+            if key != name2:
+                continue
+
+            if connections[name].get(name1, 0) == 0:
+                connections[name][name1] = connections[name][name2]
+                continue
+
+            connections[name][name1]+=connections[name][name2]
+
+    for name in names:
+        if connections[name].get(name2, 0) == 0:
+            continue
+        del connections[name][name2]
