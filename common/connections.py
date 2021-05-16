@@ -24,7 +24,7 @@ of connection of the nodes to keep track of how many times they are connected
     All connections will be set in the connections argument
 """
 def setConnections(namesToConnect, connections):
-    notConnected = namesToConnect.copy()
+    notConnected = set(namesToConnect)
 
     for name in namesToConnect:
         notConnected.remove(name)
