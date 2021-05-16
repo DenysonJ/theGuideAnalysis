@@ -47,13 +47,13 @@ Set all connections between nodes in a sentence.
         connections (dictionary) -> The keys are the names given and the values
                                     are dictionaries with the connections among the names
 """
-def connectionsSentece(text, names, connections={}, sentenceNumbers=4):
+def connectionsSentence(text, names, connections={}, sentenceNumbers=4, core="en_core_web_sm"):
 
     if not connections:
         for name in names:
             connections[name] = {}
 
-    nlp = spacy.load("en_core_web_sm")
+    nlp = spacy.load(core)
 
     doc = nlp(text)
 
