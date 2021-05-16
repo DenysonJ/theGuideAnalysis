@@ -20,6 +20,7 @@ def connections2igraph(connections):
     g.add_vertices(len(connections))
     g.vs["name"] = list(connections.keys())
     g.vs["label"] = g.vs["name"]
+    g.es["weight"] = 1.0
 
     for a in connections:
         for b in connections[a]:
@@ -95,11 +96,15 @@ Receive a graph and save the graph attributes
     Args:
         graph (igraph)    -> The graph to be analyzed
         attributes (list) -> List of lists with name attributes on attributes[0]
+                             the first attribute must be the name of the vertice
 
     Return:
         None
 """
 def graph_attributes(graph, attributes):
+    names = set(graph.vs["name"])
 
-    for i in range(len(attributes[0])):
-        graph[attributes[0][i]] = [j[i] for j in attributes[1:]]
+    for i in range(1, len(attributes[0])):
+        listAttributes = [j[i] for j in attributes[1:] if j[0] in names]
+        if listAttributes:
+            graph.vs[attributes[0][i]] = listAttributes
