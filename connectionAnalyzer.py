@@ -1,4 +1,4 @@
-from common.connections import connectionsSentece, connectionsText, joinNodes
+from common.connections import connectionsSentence, connectionsText, joinNodes
 from common.convert import txt2string,pdf2string
 from common.parse import textParsed
 from common.graph import *
@@ -13,7 +13,7 @@ def generateSentenceConnections(listaNomes, arquivoTexto, args):
     text = txt2string(arquivoTexto)
     text = textParsed(text)
 
-    connections = connectionsSentece(text, listaNomes, sentenceNumbers=args.sentences)
+    connections = connectionsSentence(text, listaNomes, sentenceNumbers=args.sentences)
 
     if args.join:
         pairList = attributesFile(args.join)
@@ -134,7 +134,7 @@ if __name__ == '__main__':
                         help='File to save analysis output')
 
     parser.add_argument('-g', '--graph-file', type=str, 
-                        default='graph_file', metavar='graph-file',
+                        default='graph_file.gml', metavar='graph-file',
                         help='File to save the graph generated.')
 
     parser.add_argument('-e', '--extension', type=str, choices=['pdf', 'png', 'svg'], 
@@ -152,7 +152,7 @@ if __name__ == '__main__':
         graph = generateSentenceConnections(args.words, args.text, args)
         plot(graph, target=args.graph_file+'Sentence.'+args.extension)
         graph_properties(graph, args.output+"Sentence.txt")
-        graph.save(args.graph_file+"Sentence.gml", format="gml")
+        graph.save(args.graph_file)
         sys.exit()
 
     if args.mode_text:
@@ -161,11 +161,11 @@ if __name__ == '__main__':
         graph = generateConnections(args.words, args.text, args)
         plot(graph, target=args.graph_file+'.'+args.extension)
         graph_properties(graph, args.output+".txt")
-        graph.save(args.graph_file+".gml", format="gml")
+        graph.save(args.graph_file)
         sys.exit()
 
     Ipage, Fpage = args.pages
     graph = connectionsPage(args.words, args.text, range(Ipage, Fpage),args)
     plot(graph, target=args.graph_file+'.'+args.extension)
     graph_properties(graph, args.output+".txt")
-    graph.save(args.graph_file+".gml", format="gml")
+    graph.save(args.graph_file)
